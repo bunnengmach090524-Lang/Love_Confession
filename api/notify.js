@@ -1,19 +1,30 @@
 // Vercel serverless function: sends her answer to your Telegram.
 // The bot token lives ONLY in Vercel environment variables, never in the browser code.
 const LABELS = {
-  yes: { en: '💗 She said: “I’d love to”', km: '💗 នាងឆ្លើយថា៖ “ខ្ញុំចង់ណាស់”' },
-  think: { en: '🌷 She said: “Can I think about it?”', km: '🌷 នាងឆ្លើយថា៖ “សូមឱ្យខ្ញុំគិតសិន”' },
+  yes: { en: '💗 She said: “I’d love to”' },
+  think: { en: '🌷 She said: “Can I think about it?”' },
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST')
-    return res.status(405).json({ ok: false })
-  }
-
   const token = process.env.TELEGRAM_BOT_TOKEN
   const chatId = process.env.TELEGRAM_CHAT_ID
-  if (!token || !chatId) return res.status(500).json({ ok: false, error: 'not configured' })
+
+  // Open /api/notify in a browser to check the setup (never shows the secrets).
+  if (req.method === 'GET') {
+    return res.status(200).json({
+      ok: true,
+      hasToken: Boolean(token),
+      hasChatId: Boolean(chatId),
+      hint: token && chatId ? 'Looks configured. Add ?test=1 to send yourself a test message.' : 'Add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in Vercel, then REDEPLOY.',
+      ...(req.query?.test && token && chatId ? await send(token, chatId, '✅ Test message from your love website') : {}),
+    })
+  }
+
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'GET, POST')
+    return res.status(405).json({ ok: false })
+  }
+  if (!token || !chatId) return res.status(500).json({ ok: false, error: 'TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID missing (redeploy after adding them)' })
 
   const body = typeof req.body === 'string' ? safeParse(req.body) : req.body || {}
   const answer = body.answer
@@ -23,16 +34,22 @@ export default async function handler(req, res) {
   const time = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Phnom_Penh', dateStyle: 'medium', timeStyle: 'short' })
   const text = `${LABELS[answer].en}\n(page language: ${locale === 'km' ? 'ខ្មែរ' : 'English'})\n🕐 ${time}`
 
+  const result = await send(token, chatId, text)
+  return res.status(result.sent ? 200 : 502).json({ ok: result.sent, telegram: result.telegram })
+}
+
+async function send(token, chatId, text) {
   try {
     const r = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: chatId, text }),
     })
-    if (!r.ok) return res.status(502).json({ ok: false })
-    return res.status(200).json({ ok: true })
-  } catch {
-    return res.status(502).json({ ok: false })
+    const data = await r.json().catch(() => ({}))
+    // Telegram's description (e.g. "chat not found", "Unauthorized") never contains the token.
+    return { sent: r.ok, telegram: r.ok ? 'sent' : data.description || `HTTP ${r.status}` }
+  } catch (err) {
+    return { sent: false, telegram: 'network error' }
   }
 }
 
