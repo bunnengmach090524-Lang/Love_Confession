@@ -21,8 +21,6 @@ const midiToFrequency = (midi) => 440 * (2 ** ((midi - 69) / 12))
 
 export function useMusic({ onError } = {}) {
   const playing = ref(false)
-  const muted = ref(false) // true once she has switched the music off herself
-  let starting = false
   let context
   let masterGain
   let scheduler
@@ -116,9 +114,12 @@ export function useMusic({ onError } = {}) {
     await audio.play() // rejects if the file is missing or the browser blocks it
   }
 
-  async function start({ silent = false } = {}) {
-    if (starting) return
-    starting = true
+  async function toggle() {
+    if (playing.value) {
+      stop()
+      return
+    }
+
     try {
       if (!useSynth) {
         try {
@@ -136,27 +137,8 @@ export function useMusic({ onError } = {}) {
     } catch (err) {
       console.error(err)
       stop()
-      if (!silent) onError?.()
-    } finally {
-      starting = false
+      onError?.()
     }
-  }
-
-  // The music button: turns music on or off, and remembers if she turned it off herself.
-  async function toggle() {
-    if (playing.value) {
-      muted.value = true
-      stop()
-      return
-    }
-    muted.value = false
-    await start()
-  }
-
-  // Called from a tap (e.g. "Open My Heart"): start quietly, unless she already turned the music off.
-  async function play() {
-    if (playing.value || muted.value) return
-    await start({ silent: true })
   }
 
   onBeforeUnmount(() => {
@@ -164,5 +146,5 @@ export function useMusic({ onError } = {}) {
     audio = undefined
     context?.close()
   })
-  return { playing, muted, toggle, play }
+  return { playing, toggle }
 }

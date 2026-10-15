@@ -22,8 +22,6 @@ export default {
     lead1: '💗 I made this from my heart, just for you.',
     lead2: 'Will you open it?',
     button: 'Open My Heart',
-    days: 'It’s been {days} days since 5 October ♡',
-    daysOne: 'It’s been 1 day since 5 October ♡',
     note: 'a little courage, a whole lot of love',
     decoration: 'a love note from my heart',
   },
@@ -34,10 +32,6 @@ export default {
     sublead: 'Tap the envelope… I left a little piece of my heart inside.',
     envelopeClosed: 'Open the love letter',
     envelopeOpened: 'Love letter opened',
-    gatePrompt: 'Type our special date to open it — day, then month, 4 digits.',
-    gateButton: 'Unlock',
-    gateWrong: 'Not quite… try again 🌷',
-    gateHint: 'Hint: think of 5 October 💗',
     hi: 'My sweet {name},',
     body: 'I made this little corner of the internet just for you. Whenever I think of you, my heart feels a little warmer. These are simply a few words I’ve been hoping to share with you.',
     signature: 'always thinking of you ♡',
@@ -57,21 +51,6 @@ export default {
       { icon: '✨', title: 'How you make me feel', text: 'Even the smallest conversation with you can leave me smiling for a long time.' },
     ],
   },
-  gallery: {
-    eyebrow: 'A few little pieces of us',
-    titleA: 'Moments I',
-    titleEm: 'treasure',
-    sublead: 'Small memories that mean a lot to me…',
-    more: 'Next memory',
-    last: 'Continue',
-    photoAlt: 'Memory {n}',
-    // Captions are matched to the photos in src/config.js by position (1st caption = 1st photo).
-    captions: [
-      'A day I will never forget',
-      'Smiling because of you',
-      'One of my favorite moments',
-    ],
-  },
   confession: {
     eyebrow: 'Something my heart has been holding',
     titleA: 'There’s something my heart',
@@ -88,14 +67,8 @@ export default {
     yes: 'Yes, I’d love that',
     think: 'Can I think about it?',
     readAgain: '← Read my message from the heart again',
-    note: 'only honesty, never pressure ♡ — your answer is sent only to me',
-    noteLocal: 'only honesty, never pressure ♡',
-    // Shown one by one while the "think" button playfully hops away.
-    dodge: [
-      'Hehe, it ran away 🙈',
-      'Almost caught it… 🌷',
-      'Okay, okay — I’ll stay put now 🤍',
-    ],
+    note: 'only honesty, never pressure ♡',
+    notify: 'When you choose, I’ll get a small message with your answer.',
   },
   ending: {
     yes: {
@@ -112,8 +85,6 @@ export default {
     again: 'Read my heart again',
     copy: 'Copy this page link',
     copied: 'Link copied ✓',
-    noteSent: 'Your answer was sent to me. Thank you for being honest ♡',
-    noteFailed: 'I couldn’t send your answer just now — you can tell me yourself whenever you like 💗',
-    noteLocal: 'This choice stays in this browser only.',
+    note: 'Thank you for being honest with me. 🤍',
   },
 }

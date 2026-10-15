@@ -1,31 +1,13 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import ConfettiBurst from '../ConfettiBurst.vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from '../../i18n'
-import { useSfx } from '../../composables/useSfx'
 
-const props = defineProps({
-  answer: { type: String, default: 'think' },
-  sound: { type: Boolean, default: true },
-  notifyStatus: { type: String, default: 'off' }, // 'off' | 'idle' | 'sending' | 'sent' | 'failed'
-})
+const props = defineProps({ answer: { type: String, default: 'think' } })
 defineEmits(['restart'])
 const { t, messages } = useI18n()
-const { chime } = useSfx()
 
 const isYes = computed(() => props.answer === 'yes')
 const copy = computed(() => messages.value.ending[isYes.value ? 'yes' : 'think'])
-
-// Be honest about what happened to her answer; say nothing while it is still being sent.
-const noteKey = computed(() => ({
-  sent: 'ending.noteSent',
-  failed: 'ending.noteFailed',
-  off: 'ending.noteLocal',
-}[props.notifyStatus] ?? ''))
-
-onMounted(() => {
-  if (isYes.value && props.sound) chime()
-})
 
 const copied = ref(false)
 let timer
@@ -44,7 +26,6 @@ onBeforeUnmount(() => clearTimeout(timer))
 
 <template>
   <section class="story-screen ending-screen">
-    <ConfettiBurst v-if="isYes" />
     <div class="ending-confetti" aria-hidden="true">
       <span v-for="n in 18" :key="n" :style="{ '--n': n }">{{ isYes ? '♥' : '✿' }}</span>
     </div>
@@ -60,6 +41,6 @@ onBeforeUnmount(() => clearTimeout(timer))
     <button class="share-button" type="button" @click="copyLink">
       {{ copied ? t('ending.copied') : t('ending.copy') }}
     </button>
-    <p v-if="noteKey" class="tiny-note" role="status">{{ t(noteKey) }}</p>
+    <p class="tiny-note">{{ t('ending.note') }}</p>
   </section>
 </template>

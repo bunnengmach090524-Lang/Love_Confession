@@ -6,36 +6,23 @@ import ToastMessage from './components/ToastMessage.vue'
 import WelcomeScene from './components/scenes/WelcomeScene.vue'
 import LetterScene from './components/scenes/LetterScene.vue'
 import ReasonsScene from './components/scenes/ReasonsScene.vue'
-import GalleryScene from './components/scenes/GalleryScene.vue'
 import ConfessionScene from './components/scenes/ConfessionScene.vue'
 import QuestionScene from './components/scenes/QuestionScene.vue'
 import EndingScene from './components/scenes/EndingScene.vue'
 import { useI18n } from './i18n'
+import { sendAnswer } from './composables/useNotify'
 import { useMusic } from './composables/useMusic'
-import { useNotify } from './composables/useNotify'
 import { useStory } from './composables/useStory'
 import { useToast } from './composables/useToast'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { showToast } = useToast()
 const story = useStory()
-const notify = useNotify()
 const music = useMusic({ onError: () => showToast(t('ui.musicUnavailable')) })
 
-// "Open My Heart" is a tap, so the browser lets the music start right here.
-function start() {
-  music.play()
-  story.next()
-}
-
-function choose(value) {
-  story.choose(value)
-  notify.send(value)
-}
-
-function restart() {
-  notify.reset()
-  story.restart()
+function onChoose(answer) {
+  story.choose(answer)
+  sendAnswer(answer, locale.value) // she was told about this on the question screen
 }
 </script>
 
@@ -44,7 +31,7 @@ function restart() {
     <AnimatedBackground />
 
     <header class="topbar">
-      <a class="brand" href="#" :aria-label="t('ui.restartLabel')" @click.prevent="restart()">
+      <a class="brand" href="#" :aria-label="t('ui.restartLabel')" @click.prevent="story.restart()">
         <span class="brand-heart">♥</span>
         <span class="brand-text">{{ t('ui.brand') }}</span>
       </a>
@@ -60,29 +47,19 @@ function restart() {
     <StoryProgress :current="story.sceneIndex.value" :total="story.total" />
 
     <Transition name="scene" mode="out-in">
-      <WelcomeScene v-if="story.scene.value === 'welcome'" key="welcome" @next="start" />
+      <WelcomeScene v-if="story.scene.value === 'welcome'" key="welcome" @next="story.next()" />
       <LetterScene
         v-else-if="story.scene.value === 'letter'"
         key="letter"
         :opened="story.letterOpened.value"
-        :unlocked="story.letterUnlocked.value"
-        @unlock="story.letterUnlocked.value = true"
         @open="story.letterOpened.value = true"
         @back="story.back()"
         @next="story.next()"
       />
       <ReasonsScene v-else-if="story.scene.value === 'reasons'" key="reasons" @back="story.back()" @next="story.next()" />
-      <GalleryScene v-else-if="story.scene.value === 'gallery'" key="gallery" @back="story.back()" @next="story.next()" />
       <ConfessionScene v-else-if="story.scene.value === 'confession'" key="confession" @back="story.back()" @next="story.next()" />
-      <QuestionScene v-else-if="story.scene.value === 'question'" key="question" @choose="choose" @back="story.back()" />
-      <EndingScene
-        v-else
-        key="ending"
-        :answer="story.answer.value"
-        :sound="!music.muted.value"
-        :notify-status="notify.status.value"
-        @restart="restart()"
-      />
+      <QuestionScene v-else-if="story.scene.value === 'question'" key="question" @choose="onChoose" @back="story.back()" />
+      <EndingScene v-else key="ending" :answer="story.answer.value" @restart="story.restart()" />
     </Transition>
 
     <footer class="footer">

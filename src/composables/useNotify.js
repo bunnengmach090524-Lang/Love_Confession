@@ -1,31 +1,18 @@
-import { ref } from 'vue'
-import { CONFIG } from '../config'
+// Tells the author (via /api/notify → Telegram) which answer she chose.
+// Fire-and-forget: if it fails, her experience is never interrupted.
+let lastSent = ''
 
-const initial = () => (CONFIG.notify ? 'idle' : 'off')
-
-/** Tells the owner (via the /api/notify serverless function) which answer was chosen. */
-export function useNotify() {
-  const status = ref(initial()) // 'off' | 'idle' | 'sending' | 'sent' | 'failed'
-
-  async function send(answer) {
-    if (!CONFIG.notify) return
-    status.value = 'sending'
-    try {
-      const response = await fetch(CONFIG.notifyEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answer }),
-        signal: typeof AbortSignal?.timeout === 'function' ? AbortSignal.timeout(8000) : undefined,
-      })
-      status.value = response.ok ? 'sent' : 'failed'
-    } catch {
-      status.value = 'failed'
-    }
+export async function sendAnswer(answer, locale) {
+  if (answer === lastSent) return // don't spam if she restarts and picks the same thing
+  lastSent = answer
+  try {
+    const res = await fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answer, locale }),
+    })
+    if (!res.ok) lastSent = '' // allow a retry on the next tap
+  } catch {
+    lastSent = ''
   }
-
-  function reset() {
-    status.value = initial()
-  }
-
-  return { status, send, reset }
 }

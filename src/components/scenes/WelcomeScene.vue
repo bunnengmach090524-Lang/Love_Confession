@@ -1,19 +1,8 @@
 <script setup>
-import { computed } from 'vue'
-import { CONFIG } from '../../config'
 import { useI18n } from '../../i18n'
-import { daysSince } from '../../utils/days'
 
 defineEmits(['next'])
-const { t, messages, locale } = useI18n()
-
-const days = daysSince(CONFIG.startDate)
-const daysText = computed(() => {
-  if (days < 1) return ''
-  // Khmer digits (១២៣) in Khmer, normal digits in English.
-  const count = new Intl.NumberFormat(locale.value === 'km' ? 'km-KH-u-nu-khmr' : 'en').format(days)
-  return t(days === 1 ? 'welcome.daysOne' : 'welcome.days', { days: count })
-})
+const { t, messages } = useI18n()
 </script>
 
 <template>
@@ -32,7 +21,6 @@ const daysText = computed(() => {
     <button class="primary-button" type="button" @click="$emit('next')">
       {{ t('welcome.button') }} <span class="button-arrow">↗</span>
     </button>
-    <p v-if="daysText" class="days-chip">{{ daysText }}</p>
     <p class="tiny-note">{{ t('welcome.note') }}</p>
     <div class="bottom-decoration">✿ &nbsp; {{ t('welcome.decoration') }} &nbsp; ✿</div>
   </section>
