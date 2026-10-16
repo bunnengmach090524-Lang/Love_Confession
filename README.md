@@ -60,3 +60,16 @@ When she taps an answer, the page calls `/api/notify` (a Vercel serverless funct
 5. Test by choosing an answer on the live link yourself.
 
 Rules: never put the token in `src/` or commit it to GitHub (`.env` is git-ignored; `.env.example` shows the names only). If the token ever leaks, revoke it with BotFather (`/revoke`). `npm run dev` doesn't run `/api`; use `npx vercel dev` to test locally.
+
+## Secret word (password) on the envelope
+The envelope is locked until she types the secret word. The word is checked on the server (`api/unlock.js`), so it is not written anywhere in the website code.
+
+1. In Vercel → Settings → Environment Variables add **`SITE_PASSWORD`** (for example `sunflower`). You can allow several spellings with commas: `sunflower,sun flower`. Capital letters and extra spaces don't matter.
+2. **Redeploy**, then test it yourself before sending the link. If `SITE_PASSWORD` is missing, nobody can open the letter.
+3. Change the hint she sees in `src/i18n/en.js` and `src/i18n/km.js` (`letter.hint`). Use `''` for no hint.
+
+This is a cute lock, not bank security: the letter text is still inside the website files.
+
+## "Can I think about it?" and her message
+- The button playfully runs away (tilts, shrinks, hops) when she hovers or taps it. After `MAX_DODGES` tries (3, in `src/components/scenes/QuestionScene.vue`) it comes back and can be chosen. Set it to `0` to turn the game off. It never covers the "Yes" button, and it stays still for people who use "reduce motion".
+- If she chooses it, a box lets her write an optional message. It is sent to your Telegram, and the page tells her so.

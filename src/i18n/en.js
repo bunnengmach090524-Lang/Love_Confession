@@ -37,6 +37,15 @@ export default {
     signature: 'always thinking of you ♡',
     continue: 'Continue',
     next: 'Read my little reasons',
+    hint: 'It’s something only the two of us know.', // shown under “This letter is locked”. Leave '' for no hint
+    hintLabel: 'Hint:',
+    lockTitle: 'This letter is locked',
+    lockPlaceholder: 'Secret word',
+    lockButton: 'Unlock',
+    lockWrong: 'Not quite… try again 💗',
+    lockError: 'I can’t check it right now. Please try again in a moment.',
+    show: 'Show',
+    hide: 'Hide',
   },
   reasons: {
     eyebrow: 'A few reasons from my heart',
@@ -69,6 +78,7 @@ export default {
     readAgain: '← Read my message from the heart again',
     note: 'only honesty, never pressure ♡',
     notify: 'When you choose, I’ll get a small message with your answer.',
+    dodge: 'Hehe, it ran away 🙈',
   },
   ending: {
     yes: {
@@ -86,5 +96,11 @@ export default {
     copy: 'Copy this page link',
     copied: 'Link copied ✓',
     note: 'Thank you for being honest with me. 🤍',
+    messagePrompt: 'If you’d like, leave me a few words for later. It’s completely optional. 🌷',
+    messagePlaceholder: 'Write here…',
+    messageNotice: 'This message will be sent to me.',
+    messageSend: 'Send to me',
+    messageSent: 'Sent. Thank you, I’ll read it with a smile. 💗',
+    messageFail: 'I couldn’t send it just now. Please try again in a moment.',
   },
 }

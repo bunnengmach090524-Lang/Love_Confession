@@ -52,7 +52,8 @@ function onChoose(answer) {
         v-else-if="story.scene.value === 'letter'"
         key="letter"
         :opened="story.letterOpened.value"
-        @open="story.letterOpened.value = true"
+        :unlocked="story.unlocked.value"
+        @open="story.openLetter()"
         @back="story.back()"
         @next="story.next()"
       />

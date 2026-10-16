@@ -1,18 +1,25 @@
-// Tells the author (via /api/notify → Telegram) which answer she chose.
-// Fire-and-forget: if it fails, her experience is never interrupted.
+// Talks to /api/notify (→ Telegram). Never blocks or breaks her experience.
 let lastSent = ''
 
-export async function sendAnswer(answer, locale) {
-  if (answer === lastSent) return // don't spam if she restarts and picks the same thing
-  lastSent = answer
+async function post(payload) {
   try {
     const res = await fetch('/api/notify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ answer, locale }),
+      body: JSON.stringify(payload),
     })
-    if (!res.ok) lastSent = '' // allow a retry on the next tap
+    return res.ok
   } catch {
-    lastSent = ''
+    return false
   }
 }
+
+/** Her choice ('yes' | 'think'). Fire-and-forget; skips duplicates. */
+export async function sendAnswer(answer, locale) {
+  if (answer === lastSent) return
+  lastSent = answer
+  if (!(await post({ answer, locale }))) lastSent = '' // allow a retry
+}
+
+/** Her optional written message. Resolves true/false so the UI can confirm. */
+export const sendMessage = (message, locale) => post({ message, locale })

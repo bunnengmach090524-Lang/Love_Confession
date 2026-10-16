@@ -1,7 +1,10 @@
 <script setup>
 import { useI18n } from '../i18n'
 
-defineProps({ opened: { type: Boolean, default: false } })
+defineProps({
+  opened: { type: Boolean, default: false },
+  locked: { type: Boolean, default: false },
+})
 defineEmits(['open'])
 const { t } = useI18n()
 </script>
@@ -23,5 +26,6 @@ const { t } = useI18n()
     <span class="envelope-front"></span>
     <span class="envelope-flap"></span>
     <span class="envelope-seal">♥</span>
+    <span v-if="locked && !opened" class="envelope-lock" aria-hidden="true">🔒</span>
   </button>
 </template>
